@@ -1,0 +1,158 @@
+<div class="wrapper row-offcanvas row-offcanvas-left">
+    <!-- Right side column. Contains the navbar and content of the page -->
+    <aside class="right-side strech">
+        <!-- Main content -->
+        <section class="content">
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="box box-solid box-warning">
+                            <div class="box-header" data-toggle="tooltip" title="Header tooltip">
+                                <h3 class="box-title"><span class="label label-default">1</span> Plot visibility curves</h3>
+                            </div>
+                            <div class="box-body">
+                                <div class="row">
+                                    <div class="col-xs-3">
+                                        <label>Hijric month</label>
+                                        <select ng-model="month" class="form-control" ng-change="updateDate(month, year)">
+                                            <option value="">Select hijri month</option>
+                                            <option value="0">Muharram</option>
+                                            <option value="1">Safar</option>
+                                            <option value="2">Rabi' al-awwal</option>
+                                            <option value="3">Rabi' al-thani</option>
+                                            <option value="4">Jumada al-awwal</option>
+                                            <option value="5">Jumada al-thani</option>
+                                            <option value="6">Rajab</option>
+                                            <option value="7">Sha'aban</option>
+                                            <option value="8">Ramadan</option>
+                                            <option value="9">Shawwal</option>
+                                            <option value="10">Dhu al-Qi'dah</option>
+                                            <option value="11">Dhu al-Hijjah</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <label>Hijric year</label>
+                                        <input type="text" ng-model="year" class="form-control" ng-change="updateDate(month, year)" />
+                                    </div>
+                                    <div class="col-xs-4" ng-show="dates.length > 0">
+                                        <label>Gregorian Date to plot</label>
+                                        <select ng-init="date=0" ng-model="date" class="form-control" ng-change="updateDays(date)">
+                                            <option value="{{key}}" ng-repeat="(key, date) in dates" ng-selected="$first">{{ date.format("LL")}}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xs-3" ng-show="dates.length > 0">
+                                        <label>&nbsp;</label>
+                                        <button class="btn btn-block btn-primary" ng-click="plot(dates[date])">Plot</button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <progressbar class="progress-striped active xs" max="100" value="progress" type="success"></progressbar>
+                                    </div>
+                                </div>
+                            </div><!-- /.box-body -->
+                        </div><!-- /.box -->
+                    </div>
+                    <div class="col-md-6">
+                        <div class="box box-solid box-warning">
+                            <div class="box-header" data-toggle="tooltip" title="Header tooltip">
+                                <h3 class="box-title"><span class="label label-default">2</span> Click on map or search particular location</h3>
+                            </div>
+                            <div class="box-body">
+                                <form novalidate ng-controller="GeocoderCtrl">
+                                    <div class="form-group">
+                                        <label>Location</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="address" required ng-model="address" typeahead="location.address for location in getLocations($viewValue) | limitTo:8" typeahead-wait-ms="500" typeahead-on-select="calculate(dates[date], $item.coordinates.latitude, $item.coordinates.longitude)" typeahead-editable="true" focus="true" autocomplete="off">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-info" ng-click="locate()" tooltip="{{ 'geolocation.modal.locate_help'|translate }}" tooltip-placement="bottom"><span class="icon icon-location-arrow"></span> {{ 'geolocation.modal.locate_now'|translate }}</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div><!-- /.box-body -->
+                        </div><!-- /.box -->
+                    </div>
+                </div>
+                <!-- Map box -->
+                <div class="row">
+                    <div class="col-md-9">
+                        <div class="box box-info">
+                            <div class="box-body">
+                                <google-map center="map.center" zoom="map.zoom" options="map.options" events="map.events">
+                                    <marker coords="marker.coords" show="true" idKey="1"></marker>
+                                    <rectangle ng-repeat="c in rectangles track by c.id" bounds="c.bounds" stroke="c.stroke" fill="c.fill" visible="c.visible" geodesic="c.geodesic" clickable="c.clickable"></rectangle>
+                                </google-map>
+                            </div><!-- /.box-body -->
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+
+                        <!-- small box -->
+                        <div class="small-box bg-aqua">
+                            <div class="inner">
+                                <h3>
+                                    15° C
+                                </h3>
+                                <p>
+                                    Rain
+                                </p>
+                            </div>
+                            <div class="icon">
+                                <i class="ion ion-ios7-rainy"></i>
+                            </div>
+                            <a href="#" class="small-box-footer">
+                                Todo: integration of weather data
+                            </a>
+                        </div>
+
+                        <div class="box box-solid box-primary">
+                            <div class="box-header">
+                                <i class="fa fa-bar-chart-o"></i>
+                                <h3 class="box-title">Moon phase</h3>
+                            </div>
+                            <div class="box-body">
+                                <svg id="moonbox" width="400px" height="400px" viewBox="10 -20 200 200">
+                            </div><!-- /.box-body-->
+                        </div><!-- /.box -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <!-- Navy tile -->
+                <div class="box box-solid" ng-class="{'bg-green': results.code == 'A', 'bg-yellow': results.code == 'B', 'bg-maroon': results.code == 'C', 'bg-blue': results.code == 'D', 'bg-purple': results.code == 'E', '': results.code == 'F'}">
+                    <div class="box-header">
+                        <h3 class="box-title">Code: {{ results.code}}</h3>
+                    </div>
+                    <div class="box-body">
+                        {{'criterion.code.' + results.code|translate}}
+                    </div><!-- /.box-body -->
+                </div><!-- /.box -->
+
+                <!-- Line chart -->
+                <div class="box box-solid box-primary">
+                    <div class="box-header">
+                        <i class="fa fa-bar-chart-o"></i>
+                        <h3 class="box-title">Sunset/Moonset</h3>
+                    </div>
+                    <div class="box-body">
+                        <nvd3 options="setOptions" data="setData"></nvd3>
+                        Sunset: {{ results.sunset|date:'hh:mm:ss'}}, Moonset: {{ results.moonset|date:'hh:mm:ss'}}
+                    </div><!-- /.box-body-->
+                </div><!-- /.box -->
+
+                <div class="box box-solid box-primary">
+                    <div class="box-header">
+                        <i class="fa fa-bar-chart-o"></i>
+                        <h3 class="box-title">Local horizon</h3>
+                    </div>
+                    <div class="box-body">
+                        <nvd3 options="horizonOptions" data="horizonData"></nvd3>
+                    </div><!-- /.box-body-->
+                </div><!-- /.box -->
+
+            </div>
+        </section><!-- /.content -->
+    </aside><!-- /.right-side -->
+</div><!-- ./wrapper -->
