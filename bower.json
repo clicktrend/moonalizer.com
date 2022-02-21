@@ -19,7 +19,7 @@
     "admin-lte": "1.2.1-bower",
     "ionicons": "~1.5.2",
     "moment": "~2.8.2",
-    "moonalizer.js": "/Users/kadir/repos/moonalizer.js/",
+    "moonalizer.js": "https://github.com/clicktrend/moonalizer.js.git",
     "d3": "~3.4.11",
     "nvd3": "~1.1.15-beta",
     "angular-nvd3": "~0.0.9"
